@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,10 +10,33 @@ func main(){
 	r := gin.Default()
 	r.GET("/", helloWorld)
 	r.GET("/data", myData)
+	r.POST("/data", dataInputHandler)
 	r.GET("/data/:id", dataSpesific)
 	r.GET("/query", dataQuery)
 	r.Run(":3000")
 }
+
+type DataInput struct {
+	Id int
+	Name string
+	GradeClass string `json:"grade_class"`
+}
+
+func dataInputHandler(c *gin.Context){
+	var data DataInput
+
+	err := c.ShouldBindJSON(&data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id": data.Id,
+		"name": data.Name,
+		"grade_class": data.GradeClass,
+	})
+}
+
 func dataQuery(c *gin.Context){
 	name := c.Query("name")
 	c.JSON(http.StatusOK, gin.H{
